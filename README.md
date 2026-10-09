@@ -24,6 +24,12 @@ The goal of this project was to build a small Azure environment through the Azur
 
 Public IP addresses, subscription identifiers, and private-key material are intentionally excluded.
 
+## Screenshot evidence
+
+The screenshot below shows the Azure Portal resource list from the lab. It provides a visual record of the VM, network security group, network interface, SSH key resource, OS disk, public IP resource, and virtual network. Azure's automatically created Network Watcher resource is also visible in a separate resource group.
+
+![Azure Portal resources view](01-resource-group.png)
+
 ## Work completed
 
 - Created the resource group, virtual network, and subnet in the Azure Portal.
