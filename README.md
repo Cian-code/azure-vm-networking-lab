@@ -26,9 +26,9 @@ Public IP addresses, subscription identifiers, and private-key material are inte
 
 ## Screenshot evidence
 
-The screenshot below shows the Azure Portal resource list from the lab. It provides a visual record of the VM, network security group, network interface, SSH key resource, OS disk, public IP resource, and virtual network. Azure's automatically created Network Watcher resource is also visible in a separate resource group.
+Sanitized Azure Portal screenshots are organized in a separate gallery to keep this project page easy to scan.
 
-![Azure Portal resources view](01-resource-group.png)
+[View the screenshot gallery](docs/screenshots/README.md)
 
 ## Work completed
 
