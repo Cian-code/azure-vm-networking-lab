@@ -8,14 +8,4 @@ A view of the Azure Portal's **All resources** page showing the VM and supportin
 
 ![Azure resource inventory](01-resource-group.png)
 
-## 02 — VNet address space
-
-Shows the address space configured for `AZ900-VNet`.
-
-Once the image is uploaded to this folder as `02-address-space.png`, add it below:
-
-`02-address-space.png`
-
-## Screenshot hygiene
-
-Screenshots should not expose public IP addresses, subscription or tenant IDs, account email addresses, credentials, or private keys. Crop or redact unnecessary information before publishing.
+More screenshots will be added here as they are reviewed.
