@@ -1,85 +1,102 @@
 # Azure VM & Networking Lab
 
-Hands-on Microsoft Azure lab documenting the deployment of an Ubuntu virtual machine and practical checks of its network configuration.
+A hands-on Microsoft Azure infrastructure lab: deploy an Ubuntu virtual machine, connect over SSH, and validate its network configuration.
 
-## Project overview
+## Objective
 
-The goal of this project was to build a small Azure environment through the Azure Portal, connect to a Linux VM remotely, and use basic Linux networking tools to understand IP addressing, routing, and DNS resolution. This is an introductory learning lab, not a production architecture.
+Build a small Azure environment in the Portal and practise the core steps involved in administering a cloud-hosted Linux VM: resource inspection, IP addressing, routing, DNS, and basic connectivity testing.
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph SUB["Azure subscription"]
+    subgraph RG["Resource group: AZ900-Lab"]
+      VM["AZ900-VM01<br/>Ubuntu Server 24.04 LTS"]
+      NIC["Network interface"]
+      DISK["Managed OS disk<br/>Standard SSD"]
+      PIP["Public IP resource"]
+      NSG["Network security group"]
+      VNET["AZ900-VNet<br/>10.0.0.0/16"]
+      SUBNET["AZ900-Subnet<br/>10.0.1.0/24"]
+      VNET --> SUBNET
+      VM --> NIC
+      VM --> DISK
+      NIC --> SUBNET
+      NIC --> PIP
+      NSG -. "network access rules" .-> NIC
+    end
+  end
+  LAPTOP["Windows laptop / PowerShell"]
+  LAPTOP -->|"SSH over TCP 22<br/>SSH key authentication"| PIP
+```
+
+For screenshots and additional testing notes, see the [screenshot gallery](docs/screenshots/README.md), [architecture notes](docs/architecture.md), and [lab validation log](docs/lab-validation.md).
 
 ## Environment
 
 | Component | Configuration |
 |---|---|
 | Resource group | `AZ900-Lab` |
-| Region | South Africa North |
-| Availability zone | Zone 1 |
-| Virtual network | `AZ900-VNet` (`10.0.0.0/16`) |
-| Subnet | `AZ900-Subnet` (`10.0.1.0/24`) |
-| VM | `AZ900-VM01` |
-| OS | Ubuntu Server 24.04 LTS |
-| Size | Standard B2ats_v2 (2 vCPUs, 1 GiB RAM as displayed in the Portal) |
+| Region / availability zone | South Africa North / Zone 1 |
+| Virtual network | `AZ900-VNet` — `10.0.0.0/16` |
+| Subnet | `AZ900-Subnet` — `10.0.1.0/24` |
+| Virtual machine | `AZ900-VM01` |
+| Operating system | Ubuntu Server 24.04 LTS |
+| VM size | Standard B2ats_v2 — 2 vCPUs, 1 GiB RAM (as displayed in the Portal) |
 | OS disk | Managed Standard SSD |
-| Private IP observed inside the VM | `10.0.1.4` |
-| Remote administration | SSH using public-key authentication |
+| Private IP observed in the VM | `10.0.1.4` |
+| Administration | SSH from Windows PowerShell using public-key authentication |
 
-Public IP addresses, subscription identifiers, and private-key material are intentionally excluded.
-
-## Screenshot evidence
-
-The [Azure Portal screenshot gallery](docs/screenshots/README.md) documents the resource inventory and VNet address space, with captions explaining what each screenshot demonstrates.
+The public IP value, subscription identifiers, and SSH private key are not included in this repository.
 
 ## Work completed
 
 - Created the resource group, virtual network, and subnet in the Azure Portal.
 - Deployed an Ubuntu Linux VM in South Africa North, Zone 1.
-- Inspected the VM size, OS disk, network interface, private IP, and public connectivity configuration.
-- Connected from Windows PowerShell using SSH and a private key stored locally.
-- Used Linux commands to inspect hostname, interface addressing, and routing.
-- Tested outbound IP connectivity and DNS-based connectivity.
-- Identified the configured Azure-provided DNS resolver and observed IPv4 and IPv6 DNS answers.
-- Stopped/deallocated the VM when not actively using the lab.
+- Inspected the VM size, OS disk, network interface, IP configuration, and associated network resources.
+- Connected remotely over SSH using a private key stored locally.
+- Used Linux commands to inspect the hostname, interface addressing, and routing table.
+- Tested outbound connectivity to a public IP address and tested DNS resolution using a hostname.
+- Inspected Ubuntu's resolver configuration and observed both IPv4 and IPv6 DNS answers.
+- Deallocated the VM when the lab was not in use.
 
-## Practical validation
+## Validation results
+
+Commands were run from inside the Ubuntu VM.
 
 | Command | Purpose | Observed result |
 |---|---|---|
-| `hostname` | Identify the VM | Returned `AZ900-VM01` |
-| `ip address` | Inspect interfaces and IP configuration | `eth0` showed `10.0.1.4/24` |
-| `ip route` | Inspect connected and default routes | Included `10.0.1.0/24` via `eth0` and default route via `10.0.1.1` |
+| `hostname` | Identify the machine | Returned `AZ900-VM01` |
+| `ip address` | Inspect interfaces and IP addresses | `eth0` showed `10.0.1.4/24` |
+| `ip route` | Inspect connected and default routes | Included the connected `10.0.1.0/24` route and a default route via `10.0.1.1` |
 | `ping -c 4 8.8.8.8` | Test outbound IP connectivity | 4 replies received; 0% packet loss during the test |
 | `ping -c 4 google.com` | Test DNS resolution and connectivity | Name resolved and 4 replies were received during the test |
-| `nslookup google.com` | Inspect DNS lookup results | Returned IPv4 and IPv6 address records |
-| `resolvectl status` | Inspect resolver configuration | Listed `168.63.129.16` for `eth0`; `nslookup` displayed the local stub resolver at `127.0.0.53` |
+| `nslookup google.com` | Query DNS | Returned IPv4 and IPv6 records |
+| `resolvectl status` | Inspect resolver configuration | Listed `168.63.129.16` as the DNS server for `eth0`; `nslookup` showed the local stub at `127.0.0.53` |
 
-### Troubleshooting observation
+A ping to `10.0.1.1` did not receive ICMP replies, while outbound connectivity to `8.8.8.8` succeeded. This is a useful troubleshooting reminder: a next-hop address not replying to ping does not, on its own, prove that routing is broken.
 
-A ping to `10.0.1.1` received no ICMP replies, while outbound connectivity to `8.8.8.8` succeeded. A gateway/next-hop address not responding to ping does not, by itself, prove that routing or outbound connectivity is broken.
+## Skills practised
 
-## AZ-900 concepts practised
+- Azure resource groups, virtual machines, regions, and availability zones
+- Azure Virtual Network and subnet addressing
+- Network interfaces and public/private IP addressing
+- SSH remote administration and key-based authentication
+- Basic Linux network diagnostics
+- Routing-table interpretation and DNS troubleshooting
 
-- Azure resources, resource groups, and subscriptions
-- Regions and availability zones
-- Virtual machines and VM sizing
-- Virtual networks, subnets, network interfaces, and IP addressing
-- Public versus private IP addresses
-- SSH remote access and key-based authentication
-- Basic routing and DNS resolution
+## Security considerations
 
-## Security notes
+- SSH on TCP port 22 was enabled to access this learning VM.
+- For production systems, restrict inbound SSH to trusted source addresses and consider private access or a controlled service such as Azure Bastion.
+- Do not publish private keys, credentials, public IP values, or subscription/tenant identifiers.
+- The repository's `.gitignore` helps exclude common local key and secret-file patterns; it does not replace careful handling of sensitive files.
 
-- SSH over TCP port 22 was enabled for this learning lab.
-- For production workloads, restrict SSH source addresses and consider controlled access options such as Azure Bastion or private connectivity.
-- The VM's public IP, subscription identifiers, and SSH private key are not included.
-- `.gitignore` can help exclude local secrets, but it is not a substitute for keeping credentials out of a repository.
+## Scope
 
-## Scope and limitations
+This is a single-VM learning lab, not a production or high-availability design. App Service, Azure Container Instances, VM Scale Sets, Availability Sets, Azure Virtual Desktop, and VNet peering were reviewed as Azure concepts but were not deployed in this project.
 
-This repository documents the VM and networking tasks actually deployed and tested. App Service, Azure Container Instances, VM Scale Sets, Availability Sets, Azure Virtual Desktop, and VNet peering were explored as AZ-900 concepts, but were not deployed as part of this lab.
+## Related certification
 
-## Possible next steps
-
-- Add sanitized Azure Portal screenshots of the resource group, VNet/subnet, and VM overview.
-- Continue with VNet peering, VPN Gateway, ExpressRoute, and public/private endpoints.
-- Add storage, identity, governance, and monitoring exercises as separate documented labs.
-
-Created as a personal hands-on learning project while studying Microsoft Azure fundamentals.
+Microsoft Certified: Azure Fundamentals (AZ-900).
