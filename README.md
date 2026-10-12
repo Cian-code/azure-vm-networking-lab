@@ -26,9 +26,7 @@ Public IP addresses, subscription identifiers, and private-key material are inte
 
 ## Screenshot evidence
 
-Sanitized Azure Portal screenshots are organized in a separate gallery to keep this project page easy to scan.
-
-[View the screenshot gallery](docs/screenshots/README.md)
+The [Azure Portal screenshot gallery](docs/screenshots/README.md) documents the resource inventory and VNet address space, with captions explaining what each screenshot demonstrates.
 
 ## Work completed
 
