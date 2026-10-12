@@ -1,47 +1,59 @@
-# Lab validation notes
+# Lab validation log
 
-These notes summarize commands run during the lab. They are for learning and do not represent a complete production troubleshooting procedure.
+The following commands were run inside the Ubuntu VM during the lab.
 
-## Identify the VM
+## Hostname
 
-Command: `hostname`
+```bash
+hostname
+```
 
 Observed output: `AZ900-VM01`.
 
-## Inspect the Linux interface
+## Interface addressing
 
-Command: `ip address`
+```bash
+ip address
+```
 
-Observation: interface `eth0` was up and displayed IPv4 address `10.0.1.4/24`.
+The `eth0` interface was up and displayed `10.0.1.4/24`.
 
-## Inspect routing
+## Routing table
 
-Command: `ip route`
+```bash
+ip route
+```
 
-- `10.0.1.0/24` was listed as directly connected through `eth0`.
-- The default route was via `10.0.1.1`.
-- A route involving `168.63.129.16` appeared via the Azure virtual network path.
+The table included:
 
-## Test outbound connectivity
+- A directly connected route for `10.0.1.0/24` through `eth0`.
+- A default route via `10.0.1.1`.
+- A route to the Azure platform DNS address `168.63.129.16` via the Azure virtual network path.
 
-Command: `ping -c 4 8.8.8.8`
+## Outbound IP connectivity
 
-Observed result: 4 packets received and 0% packet loss during the test.
+```bash
+ping -c 4 8.8.8.8
+```
 
-## Test DNS resolution and connectivity
+Observed result: 4 packets received, with 0% packet loss during the test.
 
-Command: `ping -c 4 google.com`
+## DNS resolution and connectivity
 
-Observed result: `google.com` resolved to an IPv4 address and all 4 ping requests received replies during the test. The resolved public address is omitted because DNS answers can change.
+```bash
+ping -c 4 google.com
+nslookup google.com
+resolvectl status
+```
 
-## Inspect DNS
+Observed results:
 
-Commands: `nslookup google.com` and `resolvectl status`
+- `google.com` resolved to an IPv4 address and all four ping requests received replies during the test.
+- `nslookup` displayed `127.0.0.53`, Ubuntu's local DNS stub resolver, and returned IPv4 and IPv6 records.
+- `resolvectl status` listed `168.63.129.16` as the DNS server for `eth0`.
 
-- `nslookup` displayed `127.0.0.53`, Ubuntu's local DNS stub resolver.
-- `resolvectl status` listed `168.63.129.16` as the configured/current DNS server for `eth0`.
-- The lookup returned both IPv4 and IPv6 records.
+The public DNS answer is not recorded because DNS responses can change over time.
 
-## Troubleshooting lesson
+## Troubleshooting note
 
-A ping to `10.0.1.1` did not receive ICMP replies, despite the route table listing it as the default gateway. Outbound connectivity tests succeeded. An unsuccessful ping to a gateway address alone does not prove routing is broken; use multiple checks and interpret results in context.
+A ping to `10.0.1.1` received no ICMP replies, even though the routing table listed it as the default next hop. Outbound connectivity tests succeeded. An unsuccessful ping to a gateway address alone does not establish that the route is broken; results need to be checked together.
