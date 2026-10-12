@@ -1,32 +1,28 @@
 # Lab architecture
 
-This diagram shows the major resources and logical associations used in the lab. The VM's public IP value and all credentials are intentionally omitted.
+The diagram below shows the main Azure resources and their relationships. The actual public IP value and all credentials are omitted.
 
 ```mermaid
 flowchart TB
-  subgraph SUB[Azure subscription]
-    subgraph RG[Resource group: AZ900-Lab]
-      VM[AZ900-VM01<br/>Ubuntu Server 24.04 LTS]
-      NIC[Network interface]
-      DISK[Managed OS disk<br/>Standard SSD]
-      PIP[Public IP resource<br/>Value omitted]
-      VNET[AZ900-VNet<br/>10.0.0.0/16]
-      SUBNET[AZ900-Subnet<br/>10.0.1.0/24]
-      VM --> NIC
-      VM --> DISK
+  subgraph SUB["Azure subscription"]
+    subgraph RG["Resource group: AZ900-Lab"]
+      VNET["AZ900-VNet<br/>10.0.0.0/16"] --> SUBNET["AZ900-Subnet<br/>10.0.1.0/24"]
+      VM["AZ900-VM01<br/>Ubuntu Server 24.04 LTS"] --> NIC["Network interface"]
+      VM --> DISK["Managed OS disk<br/>Standard SSD"]
       NIC --> SUBNET
-      NIC --> PIP
-      VNET --> SUBNET
+      NIC --> PIP["Public IP resource"]
+      NSG["Network security group"] -. "network access rules" .-> NIC
     end
   end
-  LAPTOP[Windows laptop / PowerShell]
-  LAPTOP -->|SSH over TCP 22<br/>key-based authentication| PIP
+  LAPTOP["Windows laptop / PowerShell"] -->|"SSH over TCP 22<br/>SSH key authentication"| PIP
 ```
 
 ## Addressing
 
 - VNet address space: `10.0.0.0/16`
-- Subnet range: `10.0.1.0/24`
-- Private IP observed on the VM: `10.0.1.4`
+- Subnet address range: `10.0.1.0/24`
+- Private IP observed inside the VM: `10.0.1.4`
 
-The actual public IP, subscription IDs, and private SSH key are deliberately not documented.
+The subnet is a smaller address range within the VNet's address space. The VM's network interface connects it to the subnet.
+
+This diagram represents the lab configuration at a conceptual level; it does not expose the public IP value or identify any physical Azure infrastructure.
